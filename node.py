@@ -21,9 +21,9 @@ class Node:
                 return True
         return
 
-    def wave(self, t, amplitude=0.5, waves=5, speed=2):
-        value = noise.pnoise1(self.x * 0.04 + t * 0.0032)
-        self.vel.y += amplitude * (math.sin(waves * self.x + speed * t) + value) * self.dt
+    def wave(self, t, amplitude=0.5, waves=5, speed=4):
+        value = noise.pnoise1(self.x * 0.01 + t * 0.0001)
+        self.vel.y += amplitude * (math.sin(waves * self.x + speed * t) + 2 * value) * self.dt
 
     def update(self, delta_time):
         self.dt = delta_time
@@ -49,11 +49,14 @@ class NodeManager:
     def __init__(self):
         self.size = 16
 
-        self.nodes = [Node((x, 300), 10) for x in range(0, 600 + 1, 10)]
-    
+        self.nodes = [Node((x, 300), 10) for x in range(0, 600, 10)]
+
     def draw(self, draw_surf, camera_offset=[0, 0]):
         # [node.draw(draw_surf, camera_offset) for node in self.nodes]
-        pygame.draw.lines(draw_surf, 'white', False, [node.rect.topleft for node in self.nodes], 1)
+        start_node = [(self.nodes[0].rect.x, 400)]
+        end_node = [(self.nodes[-1].rect.x, 400)]
+        pygame.draw.polygon(draw_surf, '#1e66e3', start_node + [node.rect.topleft for node in self.nodes] + end_node)
+        pygame.draw.lines(draw_surf, 'white', True, start_node + [node.rect.topleft for node in self.nodes] + end_node, 4)
     
     def update(self, delta_time):
         self.dt = delta_time

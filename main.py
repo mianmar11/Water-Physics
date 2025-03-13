@@ -12,10 +12,14 @@ class App:
 
         self.fps_event = pygame.USEREVENT + 1
         self.fps_timer = pygame.time.set_timer(self.fps_event, 500)
-
+    
         self.running = True
 
+        # Water Nodes
         self.node_manager = NodeManager()
+        self.WATER_SURF = pygame.Surface((self.WIDTH, self.HEIGHT), pygame.SRCALPHA).convert_alpha()
+        self.WATER_SURF.set_colorkey((0, 0, 0)) # color to refresh
+        self.WATER_SURF.set_alpha(255)
     
     def update(self):
         while self.running:
@@ -32,9 +36,13 @@ class App:
                 dt = 1 
             
             self.window.fill((30, 30, 30))
+            self.WATER_SURF.fill((0, 0, 0))
 
-            self.node_manager.draw(self.window, [0, 0])
+            self.node_manager.draw(self.WATER_SURF, [0, 0])
             self.node_manager.update(dt)
+
+            pygame.draw.circle(self.window, 'red', pygame.mouse.get_pos(), 32)
+            self.window.blit(self.WATER_SURF, (0, 0), special_flags=pygame.BLEND_ADD)
 
             pygame.display.flip()
     
