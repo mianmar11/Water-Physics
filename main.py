@@ -40,7 +40,7 @@ class App:
 
             self.node_manager.draw(self.WATER_SURF, [0, 0])
             self.node_manager.update(dt)
-
+            
             pygame.draw.circle(self.window, 'red', self.mpos, 32)
             self.window.blit(self.WATER_SURF, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
 
