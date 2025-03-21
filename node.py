@@ -1,12 +1,13 @@
 import pygame, time, math, noise
 
 class Node:
-    def __init__(self, pos, size, direction):
+    def __init__(self, pos, size, direction, border):
         self.ori_pos = pos
         self.x, self.y = pos
         self.vel = pygame.math.Vector2(0, 0)
 
         self.direction = direction
+        self.border = border
 
         self.size = size
         self.rect = pygame.Rect(self.x, self.y, size, size)
@@ -14,13 +15,13 @@ class Node:
     def draw(self, draw_surf, camera_offset):
         pygame.draw.circle(draw_surf, 'white', (self.x - camera_offset[0], self.y - camera_offset[1]), 5)
     
-    def interact(self, pos):
+    def interact(self, pos, rel=(0, 0)):
         if self.rect.collidepoint(pos):
-            if self.direction == 'h': # drag up and down
+            if self.direction == 'h' and abs(rel[1]) > 0: # drag up and down
                 self.rect.centery = max(min(pos[1], self.ori_pos[1] + 100), self.ori_pos[1] - 100)
                 self.y = self.rect.y
                 self.vel.y = 0
-            else: # drag left and right
+            elif self.direction == 'v' and abs(rel[0]) > 0: # drag left and right
                 self.rect.centerx = max(min(pos[0], self.ori_pos[0] + 100), self.ori_pos[0] - 100)
                 self.x = self.rect.x
                 self.vel.x = 0
@@ -82,34 +83,56 @@ class NodeManager:
     def __init__(self):
         self.size = 10
 
-        self.nodes = [Node((300, x), self.size, 'v') for x in range(0, 600+1, 10)]
+        # chunks of nodes
+        # self.chunks = [[Node((x, 300), self.size, 'h') for x in range(0, 600+1, 10)]]
+        self.chunks = []
 
     def draw(self, draw_surf, camera_offset=[0, 0]):
-        # [node.draw(draw_surf, camera_offset) for node in self.nodes]
-        # start_node = [(self.nodes[0].rect.x, 600)] # horizontal
-        # end_node = [(self.nodes[-1].rect.x, 600)] # horizontal
+        for nodes in self.chunks:
+            # [node.draw(draw_surf, camera_offset) for node in self.nodes]
+            # start_node = [(nodes[0].rect.x, 600)] # horizontal
+            # end_node = [(nodes[-1].rect.x, 600)] # horizontal
 
-        start_node = [(0, self.nodes[0].rect.y)] # vertical
-        end_node = [(0, self.nodes[-1].rect.y)] # vertical
+            # start_node = [(0, self.nodes[0].rect.y)] # vertical
+            # end_node = [(0, self.nodes[-1].rect.y)] # vertical
 
-        pygame.draw.polygon(draw_surf, 'blue', start_node + [node.rect.topleft for node in self.nodes] + end_node)
-        pygame.draw.lines(draw_surf, 'white', True, start_node + [node.rect.topleft for node in self.nodes] + end_node, 4)
+            if nodes[0].direction == 'h':
+                start_node = [(nodes[0].rect.x, nodes[0].border)]
+                end_node = [(nodes[-1].rect.x, nodes[-1].border)]
+            else:
+                start_node = [(nodes[0].border, nodes[0].rect.y)]
+                end_node = [(nodes[-1].border, nodes[-1].rect.y)]
+
+            pygame.draw.polygon(draw_surf, 'blue', start_node + [node.rect.topleft for node in nodes] + end_node)
+            pygame.draw.lines(draw_surf, 'white', True, start_node + [node.rect.topleft for node in nodes] + end_node, 4)
     
+    def add_chunk(self, start, end, direction='h'):
+        size = end[0] - start[0], end[1] - start[1]
+
+        if direction == 'h':
+            self.chunks.append([Node((start[0] + x, start[1]), self.size, direction, end[1]) for x in range(0, size[0] + 1, 10)])
+        else:
+            self.chunks.append([Node((start[0], start[1] + y), self.size, direction, end[0]) for y in range(0, size[1] + 1, 10)])
+
     def update(self, delta_time):
         self.dt = delta_time
 
-        for i, node in enumerate(self.nodes):
-            if not node.interact(pygame.mouse.get_pos()):
-                node.update(self.dt)
-                node.update_pos()
+        mpos = pygame.mouse.get_pos()
+        mrel = pygame.mouse.get_rel()
+        
+        for nodes in self.chunks:
+            for i, node in enumerate(nodes):
+                if not node.interact(mpos, mrel):
+                    node.update(self.dt)
+                    node.update_pos()
 
-            if i > 0:
-                if self.nodes[i - 1].direction == 'h':
-                    self.nodes[i - 1].spread_horizontally(node, self.dt, speed=0.1)
-                else:
-                    self.nodes[i - 1].spread_vertically(node, self.dt, speed=0.1)
-            if i < len(self.nodes) - 1:
-                if self.nodes[i + 1].direction == 'h':
-                    self.nodes[i + 1].spread_horizontally(node, self.dt, speed=0.1)
-                else:
-                    self.nodes[i + 1].spread_vertically(node, self.dt, speed=0.1)
+                if i > 0:
+                    if nodes[i - 1].direction == 'h':
+                        nodes[i - 1].spread_horizontally(node, self.dt, speed=0.1)
+                    else:
+                        nodes[i - 1].spread_vertically(node, self.dt, speed=0.1)
+                if i < len(nodes) - 1:
+                    if nodes[i + 1].direction == 'h':
+                        nodes[i + 1].spread_horizontally(node, self.dt, speed=0.1)
+                    else:
+                        nodes[i + 1].spread_vertically(node, self.dt, speed=0.1)

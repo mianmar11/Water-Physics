@@ -19,7 +19,7 @@ class App:
         self.node_manager = NodeManager()
         self.WATER_SURF = pygame.Surface((self.WIDTH, self.HEIGHT), pygame.SRCALPHA).convert_alpha()
         self.WATER_SURF.set_colorkey((0, 0, 0)) # color to refresh
-        self.WATER_SURF.set_alpha(255)
+        self.WATER_SURF.set_alpha(128)
 
         # brush and stuff
         self.grid_size = 30
@@ -42,7 +42,7 @@ class App:
             self.node_manager.update(dt)
             
             pygame.draw.circle(self.window, 'red', self.mpos, 32)
-            self.window.blit(self.WATER_SURF, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
+            self.window.blit(self.WATER_SURF, (0, 0), special_flags=pygame.BLEND_ADD)
 
             # ui stuff
             if self.pos1 != None:
@@ -65,6 +65,25 @@ class App:
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == pygame.BUTTON_LEFT:
                         '''Create Water Nodes'''
+                        if ((self.pos1[0] - self.pos2[0])**2 + (self.pos1[1] - self.pos2[1])**2)**0.5 != 0:
+
+                            start = [0, 0]
+                            end = [0, 0]
+                            if self.pos1[0] > self.pos2[0]:
+                                start[0] = self.pos2[0]
+                                end[0] = self.pos1[0]
+                            else:
+                                start[0] = self.pos1[0]
+                                end[0] = self.pos2[0]
+                            
+                            if self.pos1[1] > self.pos2[1]:
+                                start[1] = self.pos2[1]
+                                end[1] = self.pos1[1]
+                            else:
+                                start[1] = self.pos1[1]
+                                end[1] = self.pos2[1]
+                            
+                            self.node_manager.add_chunk(start, end, 'h')
 
                         self.pos1 = None
     
