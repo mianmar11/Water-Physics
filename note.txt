@@ -1,0 +1,12 @@
+24 Aug 2026
+Purpose
+    Create a fishing rod mechanic where the fishing bobber could thrown and
+    float on the water. 
+
+Specification
+    A fishing bobber can be thrown using right click and it will have physics 
+    applied to it. When thrown, it will go vertically upwards, then drawn down 
+    by the gravity. It then checks if it collides with any nearby water areas
+    and determines its ability to float or not. If it is in the water area, 
+    it will become Buoyant and float on top of the water. Once it reaches to 
+    the top, it will use 'wave_y()' function from 'Node' class. 

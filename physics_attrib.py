@@ -1,0 +1,2 @@
+GRAVITY = 0.4
+BUOYANCY = -0.2

@@ -7,7 +7,11 @@ class Node:
         self.vel = pygame.math.Vector2(0, 0)
 
         self.direction = direction
-        self.border = border
+        self.border = border # the border of the chunk (horizontal wave contains vertical border, and vertical wave contains horizontal border)
+        '''Borders are used to create two additional nodes which will not be used as wave nodes,
+        but rather as a starting point and end point for the Wave Polygon. This is to ensure that
+        the water image is not just floating points in the air, and actually has a depth and surface to it.
+        If a wave is horizontal, the additional nodes will be located at the bottom of the first and last nodes'''
 
         self.size = size
         self.rect = pygame.Rect(self.x, self.y, size, size)
@@ -28,7 +32,7 @@ class Node:
             return True
         return False
 
-    def wave_y(self, t, amplitude=0.5, waves=5, speed=4):
+    def wave_y(self, t, amplitude=0.2, waves=5, speed=4):
         value = noise.pnoise1(self.x * 0.01 + t * 0.0001)
         self.vel.y += amplitude * (math.sin(waves * self.x + speed * t) + 2 * value) * self.dt
     
@@ -78,6 +82,8 @@ class Node:
     def spread_vertically(self, node, dt, speed=0.06):
         self.vel.x += (node.x - self.x) * speed * dt
 
+    def __call__(self):
+        print(self.rect)
 
 class NodeManager:
     def __init__(self):
@@ -89,12 +95,7 @@ class NodeManager:
 
     def draw(self, draw_surf, camera_offset=[0, 0]):
         for nodes in self.chunks:
-            # [node.draw(draw_surf, camera_offset) for node in self.nodes]
-            # start_node = [(nodes[0].rect.x, 600)] # horizontal
-            # end_node = [(nodes[-1].rect.x, 600)] # horizontal
-
-            # start_node = [(0, self.nodes[0].rect.y)] # vertical
-            # end_node = [(0, self.nodes[-1].rect.y)] # vertical
+            # [node.draw(draw_surf, camera_offset) for node in nodes]
 
             if nodes[0].direction == 'h':
                 start_node = [(nodes[0].rect.x, nodes[0].border)]
