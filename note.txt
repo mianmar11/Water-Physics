@@ -10,3 +10,10 @@ Specification
     and determines its ability to float or not. If it is in the water area, 
     it will become Buoyant and float on top of the water. Once it reaches to 
     the top, it will use 'wave_y()' function from 'Node' class. 
+
+Implementation
+    The fishing bobber `Bobber()` does not use 'wave_y()' function from 'Node'
+    class when it reaches to the surface, however; the velocity of the bobber 
+    works by using Water Boundary Checks and decides if the bobber should fall 
+    down as in free fall or float up as in buoyancy depending on whether it is 
+    inside water or not. 
