@@ -19,16 +19,16 @@ class Node:
     def draw(self, draw_surf, camera_offset):
         pygame.draw.circle(draw_surf, 'white', (self.x - camera_offset[0], self.y - camera_offset[1]), 5)
     
-    def interact(self, pos, rel=(0, 0)):
+    def interact(self, pos, rel_vel=(0, 0)):
         if self.rect.collidepoint(pos):
-            if self.direction == 'h' and abs(rel[1]) > 0: # drag up and down
-                self.rect.centery = max(min(pos[1], self.ori_pos[1] + 100), self.ori_pos[1] - 100)
-                self.y = self.rect.y
-                self.vel.y = 0
-            elif self.direction == 'v' and abs(rel[0]) > 0: # drag left and right
-                self.rect.centerx = max(min(pos[0], self.ori_pos[0] + 100), self.ori_pos[0] - 100)
-                self.x = self.rect.x
-                self.vel.x = 0
+            if self.direction == 'h' and abs(rel_vel[1]) > 0: # drag up and down
+                # self.rect.centery = max(min(pos[1], self.ori_pos[1] + 100), self.ori_pos[1] - 100)
+                # self.y = self.rect.y
+                self.vel.y = rel_vel[1] * 0.8 # The energy from bobber will be transmitted into the node about 80%
+            elif self.direction == 'v' and abs(rel_vel[0]) > 0: # drag left and right
+                # self.rect.centerx = max(min(pos[0], self.ori_pos[0] + 100), self.ori_pos[0] - 100)
+                # self.x = self.rect.x
+                self.vel.x = rel_vel[0] * 0.8
             return True
         return False
 
@@ -115,7 +115,7 @@ class NodeManager:
         else:
             self.chunks.append([Node((start[0], start[1] + y), self.size, direction, end[0]) for y in range(0, size[1] + 1, 10)])
 
-    def update(self, delta_time):
+    def update(self, delta_time, fish_bobber):
         self.dt = delta_time
 
         mpos = pygame.mouse.get_pos()
@@ -123,7 +123,9 @@ class NodeManager:
         
         for nodes in self.chunks:
             for i, node in enumerate(nodes):
-                if not node.interact(mpos, mrel):
+                if (not node.interact(mpos, mrel)):
+                    if fish_bobber.is_active: 
+                        node.interact((fish_bobber.x, fish_bobber.y), fish_bobber.vel)
                     node.update(self.dt)
                     node.update_pos()
 

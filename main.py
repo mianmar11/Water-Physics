@@ -25,7 +25,7 @@ class App:
         self.WATER_SURF.set_alpha(128) # Transparency of the water surface
 
         # Fishing Rod
-        self.bobbers = []
+        self.bobber = Bobber(0, 0, 10, (0, 0))
 
         # brush and stuff
         self.grid_size = 30
@@ -43,16 +43,20 @@ class App:
             self.mpos = pygame.mouse.get_pos()
             
             # Clear Window and Water Surface
-            self.window.fill((30, 30, 30))
+            self.window.fill((0, 0, 0))
             self.WATER_SURF.fill((0, 0, 0))
 
             # Draw and Update Water Nodes and Polygon Surface onto the Water Surface
             self.node_manager.draw(self.WATER_SURF, [0, 0])
-            self.node_manager.update(dt)
+            self.node_manager.update(dt, self.bobber)
             
 
             # Draw and Update Bobbers onto the Window
-            [[bobber.update(dt), [bobber.check_boundary_collision(nodes) for nodes in self.node_manager.chunks], bobber.draw(self.window, (0, 0)), self.bobbers.remove(bobber) if bobber.y > self.HEIGHT else None] for bobber in self.bobbers]
+            # [[bobber.update(dt), [bobber.check_boundary_collision(nodes) for nodes in self.node_manager.chunks], bobber.draw(self.window, (0, 0)), self.bobbers.remove(bobber) if bobber.y > self.HEIGHT else None] for bobber in self.bobbers]
+            if self.bobber.is_active == True:
+                self.bobber.update(dt)
+                [self.bobber.check_boundary_collision(nodes) for nodes in self.node_manager.chunks]
+                self.bobber.draw(self.window, (0, 0))
 
             # Draw the Water Surface onto the Window with Additive Blending
             # pygame.draw.circle(self.window, 'red', self.mpos, 32)
@@ -84,7 +88,12 @@ class App:
                     
                     # Create Bobber
                     if event.button == pygame.BUTTON_RIGHT:
-                        self.bobbers.append(Bobber(self.mpos[0], self.mpos[1], 10, (0, -7)))
+                        if self.bobber.is_active == False:
+                            self.bobber.activate()
+                            self.bobber.set_pos(*self.mpos)
+                            self.bobber.set_vel((0, -10))
+                        elif self.bobber.is_active == True:
+                            self.bobber.deactivate()
                 
                 # Mouse Button Up Event
                 if event.type == pygame.MOUSEBUTTONUP:
