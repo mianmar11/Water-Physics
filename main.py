@@ -1,4 +1,7 @@
 import pygame
+from math import pi
+
+from cloth import build_cloth, update_cloth
 from node import NodeManager
 from fishing_rod import Bobber
 
@@ -27,6 +30,11 @@ class App:
         # Fishing Rod
         self.bobber = Bobber(0, 0, 10, (0, 0))
 
+        # String Nodes
+        '''String points are used to connect with Bobber for realstic fishing rod.'''
+        self.string_points, self.string_constraints = build_cloth()
+        self.string_points = [point for row in self.string_points for point in row]
+
         # brush and stuff
         self.grid_size = 30
         self.pos1 = None
@@ -38,6 +46,7 @@ class App:
             dt *= 60
             if dt > 1:
                 dt = 1 
+            # print(dt)
             
             # Get Mouse Position
             self.mpos = pygame.mouse.get_pos()
@@ -50,16 +59,24 @@ class App:
             self.node_manager.draw(self.WATER_SURF, [0, 0])
             self.node_manager.update(dt, self.bobber)
             
+            # ----------------------- Render -----------------------
+
+            # Update String Points and Constraints
+            update_cloth(self.string_points, self.string_constraints, dt)
 
             # Draw and Update Bobbers onto the Window
-            # [[bobber.update(dt), [bobber.check_boundary_collision(nodes) for nodes in self.node_manager.chunks], bobber.draw(self.window, (0, 0)), self.bobbers.remove(bobber) if bobber.y > self.HEIGHT else None] for bobber in self.bobbers]
             if self.bobber.is_active == True:
                 self.bobber.update(dt)
                 [self.bobber.check_boundary_collision(nodes) for nodes in self.node_manager.chunks]
                 self.bobber.draw(self.window, (0, 0))
 
+            # Draw and Attach String to Bobber
+                self.string_points[0].drag(*self.mpos)
+                self.string_points[-1].drag(*self.bobber())
+                for line in self.string_constraints:
+                    pygame.draw.line(self.window, 'white', line.p1(), line.p2(), 1)
+        
             # Draw the Water Surface onto the Window with Additive Blending
-            # pygame.draw.circle(self.window, 'red', self.mpos, 32)
             self.window.blit(self.WATER_SURF, (0, 0), special_flags=pygame.BLEND_ADD)
 
             # ui stuff
@@ -79,6 +96,7 @@ class App:
                 # FPS timer to update the fps in the window title
                 if event.type == self.fps_event:
                     pygame.display.set_caption(f"FPS: {self.clock.get_fps():.1f}")
+                    print(dt)
                 
                 # Mouse Button Down Event
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -92,6 +110,7 @@ class App:
                             self.bobber.activate()
                             self.bobber.set_pos(*self.mpos)
                             self.bobber.set_vel((0, -10))
+                            self.bobber.reset()
                         elif self.bobber.is_active == True:
                             self.bobber.deactivate()
                 

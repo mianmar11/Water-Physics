@@ -1,4 +1,4 @@
-import pygame, noise, time, math
+import pygame
 from physics_attrib import *
 
 class Bobber:
@@ -58,6 +58,10 @@ class Bobber:
     def deactivate(self):
         self.is_active = False
 
+    def reset(self):
+        self.water_interaction_count = 3
+        self.in_water = False
+
     def update(self, dt):
         self.dt = dt
 
@@ -79,3 +83,6 @@ class Bobber:
         self.y += self.vel.y * self.dt
 
         self.in_water = False 
+
+    def __call__(self):
+        return self.x, self.y

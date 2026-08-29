@@ -77,7 +77,7 @@ class Node:
         self.rect.y = self.y
 
     def spread_horizontally(self, node, dt, speed=0.06):
-        self.vel.y += (node.y - self.y) * speed * dt
+        self.vel.y += ((node.y - self.y) * 0.5) * speed * dt
     
     def spread_vertically(self, node, dt, speed=0.06):
         self.vel.x += (node.x - self.x) * speed * dt
@@ -90,8 +90,8 @@ class NodeManager:
         self.size = 10
 
         # chunks of nodes
-        # self.chunks = [[Node((x, 300), self.size, 'h') for x in range(0, 600+1, 10)]]
         self.chunks = []
+        self.chunks = [[Node((x, 300), self.size, 'h', 640) for x in range(0, 600+1, 10)]]
 
     def draw(self, draw_surf, camera_offset=[0, 0]):
         for nodes in self.chunks:
@@ -121,11 +121,15 @@ class NodeManager:
         mpos = pygame.mouse.get_pos()
         mrel = pygame.mouse.get_rel()
         
+        has_bobber_touched_water = False
         for nodes in self.chunks:
             for i, node in enumerate(nodes):
                 if (not node.interact(mpos, mrel)):
-                    if fish_bobber.is_active: 
-                        node.interact((fish_bobber.x, fish_bobber.y), fish_bobber.vel)
+                    if fish_bobber.is_active:
+                        if not has_bobber_touched_water and fish_bobber.water_interaction_count > 0:
+                            if node.interact(fish_bobber.get_pos(), fish_bobber.get_vel()):
+                                fish_bobber.water_interaction_count -= 1
+                                has_bobber_touched_water = True
                     node.update(self.dt)
                     node.update_pos()
 
