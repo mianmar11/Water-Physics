@@ -17,3 +17,22 @@ Implementation
     works by using Water Boundary Checks and decides if the bobber should fall 
     down as in free fall or float up as in buoyancy depending on whether it is 
     inside water or not. 
+
+
+30 Aug 2026
+Purpose
+    Create a string and attach to the fishing bobber.
+
+Specification
+    When Bobber has been created, the string will also be created and it will 
+    attach its end points to the mouse position and the Bobber's center position.
+    The bobber might also be able to move towards the direction that it is being
+    pulled.
+
+Implementation
+    Bobber may inherit 'Point' class for it to be able to move towards the 
+    direction it is being pulled, or it may have its own function that allows the 
+    bobber to move towards the direction it is being pulled. It will move when 
+    the contraint has succeeded it's maximum thresold (original distance) from 
+    the last point from the string and bobber. The 'Point' should drag the 
+    'Bobber' object for it to move. 

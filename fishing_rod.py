@@ -1,15 +1,17 @@
 import pygame
 from physics_attrib import *
+from cloth import Point, FRICTION
 
-class Bobber:
+class Bobber(Point):
     def __init__(self, x, y, radius=10, vel=(0, 0)):
+        super().__init__(x, y)
         self.x = x
         self.y = y
         self.radius = radius
         self.color = (255, 0, 0)  # Red color for the bobber
 
         self.is_active = False # Flag to use whether to update, display the bobber or not
-
+        self.has_touched_water = False
         self.in_water = False
         self.on_surface = False
         self.water_interaction_count = 3
@@ -30,6 +32,8 @@ class Bobber:
 
         if chunk_rect.colliderect(pygame.Rect(self.x, self.y, self.radius * 2, self.radius * 2)):
             self.in_water = True
+            self.has_touched_water = True
+            self.pinned = True
             
             for node in chunk:
                 if node.rect.colliderect(pygame.Rect(self.x, self.y + self.radius, self.radius * 2, self.radius * 2)):
@@ -62,11 +66,35 @@ class Bobber:
         self.water_interaction_count = 3
         self.in_water = False
 
-    def update(self, dt):
+    def update_verlet_x_pos(self, dt):
+        friction = FRICTION
+        if self.in_water:
+            friction = 0
+
+        self.vel.x += (((self.x - self.old_x) * friction) - self.vel.x) * friction
+        self.old_x = self.x
+    
+    def update_verlet_y_pos(self, dt):
+        if self.pinned:
+            return
+        
+        friction = FRICTION
+        if self.in_water:
+            friction = 0
+
+        self.vel.y += (((self.y - self.old_y) * friction) - self.vel.y) * friction
+        self.old_y = self.y
+        self.vel.y += GRAVITY * dt
+
+    def update_boyancy(self, dt):
         self.dt = dt
 
         # Apply Gravity and Limit Downward Speed
-        if self.in_water == False:
+        self.update_verlet_x_pos(dt)
+        if not self.has_touched_water:
+            self.update_verlet_y_pos(dt)
+
+        elif not self.in_water:
             self.vel.y += GRAVITY * self.dt  # Apply gravity to the vertical velocity
             if self.vel.y > 24:  # Limit the falling speed
                 self.vel.y = 24
@@ -83,6 +111,7 @@ class Bobber:
         self.y += self.vel.y * self.dt
 
         self.in_water = False 
+        self.pinned = False
 
     def __call__(self):
         return self.x, self.y

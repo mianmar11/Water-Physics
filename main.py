@@ -1,7 +1,7 @@
 import pygame
 from math import pi
 
-from cloth import build_cloth, update_cloth
+from cloth import build_cloth, update_cloth, Line
 from node import NodeManager
 from fishing_rod import Bobber
 
@@ -42,7 +42,7 @@ class App:
     
     def update(self):
         while self.running:
-            dt = self.clock.tick(1000) / 1000
+            dt = self.clock.tick(60) / 1000
             dt *= 60
             if dt > 1:
                 dt = 1 
@@ -66,13 +66,12 @@ class App:
 
             # Draw and Update Bobbers onto the Window
             if self.bobber.is_active == True:
-                self.bobber.update(dt)
+                self.bobber.update_boyancy(dt)
                 [self.bobber.check_boundary_collision(nodes) for nodes in self.node_manager.chunks]
                 self.bobber.draw(self.window, (0, 0))
 
             # Draw and Attach String to Bobber
                 self.string_points[0].drag(*self.mpos)
-                self.string_points[-1].drag(*self.bobber())
                 for line in self.string_constraints:
                     pygame.draw.line(self.window, 'white', line.p1(), line.p2(), 1)
         
@@ -96,7 +95,8 @@ class App:
                 # FPS timer to update the fps in the window title
                 if event.type == self.fps_event:
                     pygame.display.set_caption(f"FPS: {self.clock.get_fps():.1f}")
-                    print(dt)
+                    # print(dt)
+                    print(self.bobber.vel)
                 
                 # Mouse Button Down Event
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -111,6 +111,11 @@ class App:
                             self.bobber.set_pos(*self.mpos)
                             self.bobber.set_vel((0, -10))
                             self.bobber.reset()
+
+                            # Attach the string node to bobber with line constraint
+                            self.string_points[-1].drag(*self.bobber())
+                            if self.string_constraints[-1].p2 != self.bobber: # Check the address
+                                self.string_constraints.append(Line(self.string_points[-1], self.bobber))
                         elif self.bobber.is_active == True:
                             self.bobber.deactivate()
                 

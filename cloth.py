@@ -1,13 +1,12 @@
 import math
+from physics_attrib import *
 
-FRICTION = 0.99 # Damping factor 
-GRAVITY = 0.5
+
 CONSTRAINT_ADUSTMENT_ITERATION = 5 # more = stiffer cloth 
-
 SPACING = 25
 '''This will make vertical string, good to attach with the Bobber.'''
 COLS = 1
-ROWS = 15
+ROWS = 12
 
 # Node Point
 class Point:
