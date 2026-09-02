@@ -1,4 +1,4 @@
-24 Aug 2026
+24 Aug 2026 (Done)
 Purpose
     Create a fishing rod mechanic where the fishing bobber could thrown and
     float on the water. 
@@ -19,7 +19,7 @@ Implementation
     inside water or not. 
 
 
-30 Aug 2026
+30 Aug 2026 (Not Done)
 Purpose
     Create a string and attach to the fishing bobber.
 
@@ -36,3 +36,21 @@ Implementation
     the contraint has succeeded it's maximum thresold (original distance) from 
     the last point from the string and bobber. The 'Point' should drag the 
     'Bobber' object for it to move. 
+
+1 Sep 2026 
+Purpose
+    Repeat the same purpose from Aug 30, with simpler approach. This implication
+    may not have direction interaction with user control (mouse) yet.
+
+Specification
+    When the bobber has been created, it will start counting up the timer, which
+    will be used to determined if it should create a new 'Point' until the bobber 
+    is submerged into the water. Only, then those created points will be updated. 
+    The first point should be pinned to make this purpose simple. 
+
+Implementation
+    When the bobber becomes active, in the event loop, it checks the point creation 
+    event timer. The first point that has been created will be pinned so that 
+    it won't affect with gravity. Points and new Constraint Lines will be created 
+    until the bobber has been submerged 'has_touched_water == True'. Only then, 
+    those points and line constraints will be updated. 

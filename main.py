@@ -66,7 +66,7 @@ class App:
 
             # Draw and Update Bobbers onto the Window
             if self.bobber.is_active == True:
-                self.bobber.update_boyancy(dt)
+                self.bobber.update(dt)
                 [self.bobber.check_boundary_collision(nodes) for nodes in self.node_manager.chunks]
                 self.bobber.draw(self.window, (0, 0))
 
@@ -96,7 +96,6 @@ class App:
                 if event.type == self.fps_event:
                     pygame.display.set_caption(f"FPS: {self.clock.get_fps():.1f}")
                     # print(dt)
-                    print(self.bobber.vel)
                 
                 # Mouse Button Down Event
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -113,9 +112,9 @@ class App:
                             self.bobber.reset()
 
                             # Attach the string node to bobber with line constraint
-                            self.string_points[-1].drag(*self.bobber())
-                            if self.string_constraints[-1].p2 != self.bobber: # Check the address
-                                self.string_constraints.append(Line(self.string_points[-1], self.bobber))
+                            # self.string_points[-1].drag(*self.bobber())
+                            # if self.string_constraints[-1].p2 != self.bobber: # Check the address
+                            #     self.string_constraints.append(Line(self.string_points[-1], self.bobber))
                         elif self.bobber.is_active == True:
                             self.bobber.deactivate()
                 
@@ -132,7 +131,6 @@ class App:
 
                         self.pos1 = None
     
-
 if __name__ == "__main__":
     app = App()
     app.update()

@@ -17,20 +17,21 @@ class Point:
         self.x = self.old_x
         self.y = self.old_y
 
+        self.vel = [0, 0]
+
         self.pinned = pinned
     
     def update(self, dt):
         if self.pinned:
             return
-        vx = (self.x - self.old_x) * FRICTION
-        vy = (self.y - self.old_y) * FRICTION
+        self.vel[0] += (((self.x - self.old_x) * FRICTION) - self.vel[0]) * dt
+        self.vel[1] += (((self.y - self.old_y) * FRICTION) - self.vel[1]) * dt
 
         self.old_x = self.x
         self.old_y = self.y 
 
-        self.x += vx * dt
-        self.y += vy * dt
-        self.y += GRAVITY * dt
+        self.x += self.vel[0] 
+        self.y += self.vel[1] + GRAVITY * dt
 
     def drag(self, mx, my):
         self.x = self.old_x = mx
