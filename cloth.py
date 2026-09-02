@@ -8,6 +8,8 @@ SPACING = 25
 COLS = 1
 ROWS = 12
 
+
+# --------------------------- Classes --------------------------- 
 # Node Point
 class Point:
     def __init__(self, x, y, pinned=False):
@@ -71,6 +73,8 @@ class Line:
             self.p2.x += offset_x
             self.p2.y += offset_y
 
+
+# --------------------------- Functions --------------------------- 
 def find_nearest_point(points, mx, my) -> Point:
     for point in points:
         dx = mx - point.x
@@ -119,7 +123,15 @@ def build_cloth(start_pos=(0, 0)):
     
     return all_points, line_constraints
 
+def create_string_node(position_list, constraint_list, current_pos):
+    position_list.append(Point(current_pos[0], current_pos[1], True if len(position_list) == 0 else False))
+    if len(position_list) > 1:
+        constraint_list.append(Line(position_list[-2], position_list[-1]))
+
 def update_cloth(points, constraints, dt):
+    if not len(points) or not len(constraints):
+        return 
+    
     # Points
     for point in points:
         point.update(dt)

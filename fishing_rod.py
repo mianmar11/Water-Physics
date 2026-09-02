@@ -19,7 +19,7 @@ class Bobber(Point):
         self.vel = pygame.math.Vector2(*vel)
 
         self.touched_water_event = pygame.USEREVENT + 2
-        self.touched_water_event_timer = pygame.time.set_timer(self.touched_water_event, 500)
+        self.touched_water_event_timer = pygame.time.set_timer(self.touched_water_event, 100)
 
     def draw(self, draw_surf, camera_offset=[0, 0]):
         pygame.draw.circle(draw_surf, self.color, (int(self.x) - camera_offset[0], int(self.y) - camera_offset[1]), self.radius)
@@ -111,7 +111,8 @@ class Bobber(Point):
         
         # Apply Buoyancy if in water
         elif self.in_water == True:
-
+            
+            # Update Vertical Velocity
             # Apply buoyancy with extra force to the vertical velocity
             if self.vel.y > 0:
                 self.vel.y += 5 * BUOYANCY * self.dt  
@@ -121,6 +122,9 @@ class Bobber(Point):
                 self.vel.y += BUOYANCY * self.dt 
                 if self.vel.y < -6:
                     self.vel.y = -6
+            
+            # Update Horizontal Velocity
+            self.vel.x += -self.vel.x * 0.08 * self.dt  # Apply damping to horizontal velocity in water
 
         # Update Position 
         self.x += self.vel.x * self.dt

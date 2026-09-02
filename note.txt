@@ -37,7 +37,8 @@ Implementation
     the last point from the string and bobber. The 'Point' should drag the 
     'Bobber' object for it to move. 
 
-1 Sep 2026 
+
+1 Sep 2026 (Done)
 Purpose
     Repeat the same purpose from Aug 30, with simpler approach. This implication
     may not have direction interaction with user control (mouse) yet.

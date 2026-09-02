@@ -1,7 +1,7 @@
-import pygame
+import pygame, random
 from math import pi
 
-from cloth import build_cloth, update_cloth, Line
+from cloth import build_cloth, update_cloth, create_string_node
 from node import NodeManager
 from fishing_rod import Bobber
 
@@ -10,7 +10,7 @@ class App:
         pygame.init()
 
         # Create Window
-        self.WIDTH, self.HEIGHT = 640, 640
+        self.WIDTH, self.HEIGHT = 1280, 640
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
 
         self.clock = pygame.time.Clock()
@@ -32,8 +32,10 @@ class App:
 
         # String Nodes
         '''String points are used to connect with Bobber for realstic fishing rod.'''
-        self.string_points, self.string_constraints = build_cloth()
-        self.string_points = [point for row in self.string_points for point in row]
+        # self.string_points, self.string_constraints = build_cloth()
+        self.string_points = []
+        self.string_constraints = []
+        # self.string_points = [point for row in self.string_points for point in row]
 
         # brush and stuff
         self.grid_size = 30
@@ -71,14 +73,18 @@ class App:
                 self.bobber.draw(self.window, (0, 0))
 
             # Draw and Attach String to Bobber
-                self.string_points[0].drag(*self.mpos)
+            if len(self.string_points) > 0:
+                self.string_points[0].drag(*self.mpos) # Drag to mouse position
+                if self.bobber.has_touched_water:
+                    self.string_points[-1].drag(*self.bobber.get_pos()) # Drag to bobber's position
+
                 for line in self.string_constraints:
                     pygame.draw.line(self.window, 'white', line.p1(), line.p2(), 1)
         
             # Draw the Water Surface onto the Window with Additive Blending
             self.window.blit(self.WATER_SURF, (0, 0), special_flags=pygame.BLEND_ADD)
 
-            # ui stuff
+            # Ui stuff
             if self.pos1 != None:
                 self.pos2 = self.mpos[0]//self.grid_size * self.grid_size, self.mpos[1]//self.grid_size * self.grid_size, 
                 dx, dy = self.pos2[0] - self.pos1[0], self.pos2[1] - self.pos1[1]
@@ -106,10 +112,13 @@ class App:
                     # Create Bobber
                     if event.button == pygame.BUTTON_RIGHT:
                         if self.bobber.is_active == False:
+                            self.bobber.reset()
                             self.bobber.activate()
                             self.bobber.set_pos(*self.mpos)
-                            self.bobber.set_vel((0, -10))
-                            self.bobber.reset()
+                            self.bobber.set_vel((random.randint(-5, 5), -10))
+
+                            # # Create an origin string point
+                            # self.string_points.append(Point(self.bobber.x, self.bobber.y, True if len(self.string_points) == 0 else False))
 
                             # Attach the string node to bobber with line constraint
                             # self.string_points[-1].drag(*self.bobber())
@@ -117,6 +126,8 @@ class App:
                             #     self.string_constraints.append(Line(self.string_points[-1], self.bobber))
                         elif self.bobber.is_active == True:
                             self.bobber.deactivate()
+                            self.string_constraints = []
+                            self.string_points = []
                 
                 # Mouse Button Up Event
                 if event.type == pygame.MOUSEBUTTONUP:
@@ -131,6 +142,24 @@ class App:
 
                         self.pos1 = None
     
+                # Bobber Water Interaction Event
+                if self.bobber.is_active:
+                    if self.bobber.is_water_interaction_event(event):
+                        # If bobber has touched water 
+                        if self.bobber.in_water and not self.bobber.has_touched_water:
+                            self.bobber.has_touched_water = True
+
+                            # Create a last string point at the bobber's position and attach it to the line constraints
+                            create_string_node(self.string_points, self.string_constraints, self.bobber.get_pos())
+                            print("bobber has touched water\n")
+                        
+                        # If bobber has not touched water yet
+                        elif not self.bobber.has_touched_water:
+                            
+                            # Create string nodes at each frame where the bobber is and attach it to last node
+                            create_string_node(self.string_points, self.string_constraints, self.bobber.get_pos())
+                            print("creating points", len(self.string_points))    
+
 if __name__ == "__main__":
     app = App()
     app.update()

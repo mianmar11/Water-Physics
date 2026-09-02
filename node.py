@@ -91,7 +91,7 @@ class NodeManager:
 
         # chunks of nodes
         self.chunks = []
-        self.chunks = [[Node((x, 300), self.size, 'h', 640) for x in range(0, 600+1, 10)]]
+        self.chunks = [[Node((x, 300), self.size, 'h', 640) for x in range(0, 1280+1, 10)]]
 
     def draw(self, draw_surf, camera_offset=[0, 0]):
         for nodes in self.chunks:
