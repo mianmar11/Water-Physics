@@ -126,7 +126,7 @@ def build_cloth(start_pos=(0, 0)):
 def create_string_node(position_list, constraint_list, current_pos):
     position_list.append(Point(current_pos[0], current_pos[1], True if len(position_list) == 0 else False))
     if len(position_list) > 1:
-        constraint_list.append(Line(position_list[-2], position_list[-1]))
+        constraint_list.append(Line(position_list[-1], position_list[-2]))
 
 def update_cloth(points, constraints, dt):
     if not len(points) or not len(constraints):

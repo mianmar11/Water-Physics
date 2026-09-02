@@ -55,3 +55,24 @@ Implementation
     it won't affect with gravity. Points and new Constraint Lines will be created 
     until the bobber has been submerged 'has_touched_water == True'. Only then, 
     those points and line constraints will be updated. 
+
+
+2 Sep 2026 (Done)
+Purpose
+    The purpose is to make the string nodes spawn at the starting position and 
+    follow after the bobber, so that they look like they are being shoot out of 
+    the origin rather than being spawned at the bobber's position. This creates 
+    better visual and make the mechanic more logic. 
+
+Specification
+    When the bobber has been active, the cloth points will be created at the origin 
+    where the bobber has been released, then the first point will be attached to the
+    bobber. When attached, the last nodes will be followed after that previous nodes,
+    since the first node is being dragged by the bobber, the chain is being pulled 
+    towards the direction the bobber is going. 
+
+Implementation
+    Reversing the subscript or index of the dragging points for 'self.mpos' and 
+    'self.bobber.get_pos()' makes the chain of nodes more logically appealing. 
+    This changes also influences on the chain of node creation in the event checks.
+    

@@ -19,7 +19,7 @@ class Bobber(Point):
         self.vel = pygame.math.Vector2(*vel)
 
         self.touched_water_event = pygame.USEREVENT + 2
-        self.touched_water_event_timer = pygame.time.set_timer(self.touched_water_event, 100)
+        self.touched_water_event_timer = pygame.time.set_timer(self.touched_water_event, 50)
 
     def draw(self, draw_surf, camera_offset=[0, 0]):
         pygame.draw.circle(draw_surf, self.color, (int(self.x) - camera_offset[0], int(self.y) - camera_offset[1]), self.radius)
